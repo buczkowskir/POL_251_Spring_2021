@@ -18,8 +18,8 @@ data_long %>%
   group_by(state_name, candidate) %>% 
   summarize(candidatevotes = sum(candidatevotes)) %>% 
   pivot_wider(names_from = candidate, values_from = candidatevotes) %>% 
-  rename('trump_votes'   = c(2),
-         'clinton_votes' = c(3)) %>% 
+  rename('clinton_votes'   = c(2),
+         'trump_votes'     = c(3)) %>% 
   ungroup() -> data_wide
 
 
