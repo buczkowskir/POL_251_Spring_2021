@@ -26,3 +26,8 @@ data_long %>%
 # Writing CSV file 
 data_wide %>% 
   write_csv(path = 'election_results_2016.csv')
+
+# Creating complete data set
+data_wide %>% 
+  inner_join(read_csv('https://raw.githubusercontent.com/buczkowskir/POL_251_Spring_2021/master/women_partisanship_home_values.csv')) %>% 
+  write_csv(path = 'complete_data.csv')
