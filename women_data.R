@@ -1,13 +1,15 @@
 
+#-----------------------------------------#
 
-# Operationalizing Gender Norms Variable
+# Operationalizing Women Leadership Variable #
 
-# Ryan Buczkowski
+# Ryan Buczkowski #
 
 #-----------------------------------------#
 
 # Loading Libraries
 pacman::p_load('tidyverse', 'rvest')
+
 
 # Creating URL object
 women_url <- 'https://statusofwomendata.org/explore-the-data/political-participation/additional-state-data/political-participation-composite/'
@@ -16,13 +18,13 @@ women_url <- 'https://statusofwomendata.org/explore-the-data/political-participa
 read_html(women_url) %>% 
   html_node(xpath = '//*[@id="post-2937"]/table') %>% 
   html_table(fill = TRUE) %>% 
-  as_tibble() -> women_web_table
+  as_tibble() -> web_table2
 
 # Cleaning web table
 women_web_table %>% 
   select(X1, X2) %>% 
   rename('state_name'  = X1,
-         'women_index' = X2) -> women_table
+         'women_index' = X2) -> women_leadership_table
 
 # Join all data together
 read_csv('home_values.csv') %>% 

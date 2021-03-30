@@ -38,6 +38,38 @@ inner_join(states, home_values_clean
            
            ) -> home_values_joined
 
+home_values_joined %>% 
+  ggplot(aes(x = reorder(state_abb, housing_mean), y = housing_mean)) +
+  geom_col(aes(fill = state_region), color = 'black') +
+  labs(x        = 'State',
+       y        = 'Housing Price',
+       title    = 'Mean of Historic Home Price',
+       subtitle = 'By State',
+       caption  = 'Visualization created using ggplot2 in RStudio \nCreator: Ryan Buczkowski - University of Mississippi - Political Science Department') +
+  scale_fill_discrete(name = 'State Region') +
+  theme_minimal() +
+  scale_y_continuous(labels = dollar) +
+  theme(
+    axis.text         = element_text(face  = 'bold.italic',
+                                     size  = 9),
+    axis.title        = element_text(face  = 'bold',
+                                     size  = 14),
+    plot.title        = element_text(face  = 'bold',
+                                     size  = 18),
+    plot.subtitle     = element_text(face  = 'italic',
+                                     size  = 9),
+    legend.position   = 'bottom',
+    legend.background = element_rect(color = 'black'),
+    legend.title      = element_text(face  = 'bold'),
+    legend.text       = element_text(face  = 'bold.italic'),
+    plot.caption      = element_text(face  = 'italic',
+                                     size  = 9,
+                                     hjust = 0)
+  )
+
+
+
+
 #------------------------------------------------#
 
 # Data Analysis of Partisanship -- 2016 Election #
@@ -68,6 +100,41 @@ web_table %>%
          ) -> partisanship_table
 
 
+
+partisanship_table %>% 
+  ggplot(aes(x = reorder(state_name, dem_adv), y = dem_adv)) +
+  geom_col(color = 'black') +
+  labs(x        = 'State',
+       y        = 'Democrat Advantage',
+       title    = 'Partisanship Differences',
+       subtitle = 'By State',
+       caption  = 'Visualization created using ggplot2 in RStudio \nCreator: Ryan Buczkowski - University of Mississippi - Political Science Department') +
+  theme_minimal() +
+  theme(
+    axis.text         = element_text(face  = 'bold.italic',
+                                     size  = 9),
+    axis.title        = element_text(face  = 'bold',
+                                     size  = 14),
+    plot.title        = element_text(face  = 'bold',
+                                     size  = 18),
+    plot.subtitle     = element_text(face  = 'italic',
+                                     size  = 9),
+    legend.position   = 'bottom',
+    legend.background = element_rect(color = 'black'),
+    legend.title      = element_text(face  = 'bold'),
+    legend.text       = element_text(face  = 'bold.italic'),
+    plot.caption      = element_text(face  = 'italic',
+                                     size  = 9,
+                                     hjust = 0)
+  )
+
+
+
+
+
+
+
+
 #----------------------------------------#
 
 # Operationalizing Women Leadership Variable #
@@ -88,12 +155,14 @@ read_html(women_url) %>%
   ) -> web_table2
 
 # Cleaning web table
-women_web_table %>% 
+web_table2 %>% 
   select(X1, X2) %>% 
   rename('state_name'  = X1,
-         'women_index' = X2
-         
-         ) -> women_leadership_table
+         'women_index' = X2) %>% 
+  mutate(women_index = str_replace(women_index, '–', '-'),
+         women_index = parse_number(women_index)) -> women_leadership_table
+
+
 
 #------------------------------------------------------------#
 
@@ -104,34 +173,44 @@ women_web_table %>%
 #------------------------------------------------------------#
 
 # Importing data file from downloads
-read_csv('C:/Users/ryanb/Downloads/1976-2020-president.csv') %>% 
-  filter(year == 2016) %>% 
-  select(state, candidate, candidatevotes) %>% 
-  filter(str_detect(candidate, 'CLINTON|TRUMP') == TRUE) %>%
-  mutate(candidate  = str_extract(candidate, 'TRUMP|CLINTON'),
-         candidate  = str_to_title(candidate),
-         state_name = str_to_title(state)) %>% 
-  right_join(tibble(state_name = state.name)) %>% 
-  select(state_name, candidate, candidatevotes
+read_csv('https://raw.githubusercontent.com/buczkowskir/POL_251_Spring_2021/master/election_results_2016.csv') %>% 
+  mutate(clinton_pct_lead = ((clinton_votes - trump_votes) / (trump_votes + clinton_votes)) * 100,
+         clinton_pct_lead = round(clinton_pct_lead, 1)) %>% 
+  select(state_name, clinton_pct_lead
          
-         ) -> data_long
-
-# Cleaning data for pivot
-data_long %>% 
-  group_by(state_name, candidate) %>% 
-  summarize(candidatevotes = sum(candidatevotes)) %>% 
-  pivot_wider(names_from = candidate, values_from = candidatevotes) %>% 
-  rename('clinton_votes'   = c(2),
-         'trump_votes'     = c(3)) %>% 
-  ungroup(
-    
-  ) -> data_wide
+         ) -> election_results
 
 # Joining all the data together
 home_values_joined %>% 
   inner_join(partisanship_table) %>% 
-  inner_join(women_table)
+  inner_join(women_leadership_table) %>% 
+  inner_join(election_results) -> complete_data
 
+
+complete_data %>% 
+  ggplot(aes(y = clinton_pct_lead, x = women_index)) +
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  theme_minimal() +
+  theme(
+    axis.text         = element_text(face  = 'bold.italic',
+                                     size  = 9),
+    axis.title        = element_text(face  = 'bold',
+                                     size  = 14),
+    plot.title        = element_text(face  = 'bold',
+                                     size  = 18),
+    plot.subtitle     = element_text(face  = 'italic',
+                                     size  = 9),
+    legend.position   = 'bottom',
+    legend.background = element_rect(color = 'black'),
+    legend.title      = element_text(face  = 'bold'),
+    legend.text       = element_text(face  = 'bold.italic'),
+    plot.caption      = element_text(face  = 'italic',
+                                     size  = 9,
+                                     hjust = 0)
+  )
+
+  
 
 
 

@@ -36,7 +36,7 @@ read_csv('home_values.csv') %>%
 # Visualizing data
 partisanship_home_values %>% 
   ggplot(aes(x = reorder(state_abb, dem_adv), y = dem_adv)) +
-  geom_col(aes(fill = dem_adv)) +
+  geom_col(aes(fill = dem_adv), color = 'black') +
   scale_fill_gradient2(low      = 'red',
                        mid      = 'white',
                        high     = 'blue',
@@ -46,16 +46,22 @@ partisanship_home_values %>%
   labs(x = 'State',
        y = 'Democratic Advantage',
        title = 'Democratic Advantage by State') +
-  theme(axis.text  = element_text(face = 'bold.italic'),
-        axis.title = element_text(face = 'bold',
-                                  size = 14),
-        plot.title = element_text(size = 18,
-                                  face = 'bold'))
+  theme(
+    axis.text         = element_text(face  = 'bold.italic',
+                                     size  = 9),
+    axis.title        = element_text(face  = 'bold',
+                                     size  = 14),
+    plot.title        = element_text(face  = 'bold',
+                                     size  = 18),
+    plot.subtitle     = element_text(face  = 'italic',
+                                     size  = 9),
+    legend.position   = 'bottom',
+    legend.background = element_rect(color = 'black'),
+    legend.title      = element_text(face  = 'bold'),
+    legend.text       = element_text(face  = 'bold.italic'),
+    plot.caption      = element_text(face  = 'italic',
+                                     size  = 9,
+                                     hjust = 0)
+  )
 
-
-mtcars %>% 
-  ggplot(aes(x = wt, y = mpg)) +
-  geom_point() +
-  geom_smooth(method = 'lm') +
-  theme_minimal()
 
